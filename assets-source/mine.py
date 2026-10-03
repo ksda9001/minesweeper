@@ -11,6 +11,7 @@ bpy.ops.object.delete(use_global=False)
 def material(name, color, metallic, roughness, textured=False):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
+    m.use_backface_culling = True
     bsdf = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
     bsdf.inputs['Base Color'].default_value = (*color, 1)
     bsdf.inputs['Metallic'].default_value = metallic
@@ -24,7 +25,7 @@ def material(name, color, metallic, roughness, textured=False):
         m.node_tree.links.new(channels.outputs['Green'], bsdf.inputs['Roughness'])
         paint_metal = m.node_tree.nodes.new('ShaderNodeMath')
         paint_metal.operation = 'MULTIPLY'
-        paint_metal.inputs[1].default_value = .35
+        paint_metal.inputs[1].default_value = .08
         m.node_tree.links.new(channels.outputs['Blue'], paint_metal.inputs[0])
         m.node_tree.links.new(paint_metal.outputs[0], bsdf.inputs['Metallic'])
         for filename, target in [('mine-metal-color.jpg', 'Base Color'), ('mine-metal-normal.jpg', 'Normal')]:
@@ -33,16 +34,19 @@ def material(name, color, metallic, roughness, textured=False):
             if target == 'Normal':
                 tex.image.colorspace_settings.name = 'Non-Color'
                 normal = m.node_tree.nodes.new('ShaderNodeNormalMap')
-                normal.inputs['Strength'].default_value = .45
+                normal.inputs['Strength'].default_value = .75
                 m.node_tree.links.new(tex.outputs['Color'], normal.inputs['Color'])
                 m.node_tree.links.new(normal.outputs['Normal'], bsdf.inputs[target])
             else:
                 m.node_tree.links.new(tex.outputs['Color'], bsdf.inputs[target])
     return m
 
-paint = material('Weathered green painted steel', (.17,.23,.09), .45, .65, True)
-edge = material('Exposed worn steel edge', (.16,.17,.12), .8, .46)
-dark = material('Recessed seams', (.035,.041,.025), .35, .88)
+paint = material('Weathered green painted steel', (.17,.23,.09), .08, .58, True)
+paint_bsdf = next(n for n in paint.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+paint_bsdf.inputs['Coat Weight'].default_value = .22
+paint_bsdf.inputs['Coat Roughness'].default_value = .32
+edge = material('Exposed worn steel edge', (.48,.50,.43), .92, .29)
+dark = material('Recessed seams', (.075,.055,.035), .05, .94)
 letter = material('Faded warning paint', (.76,.68,.36), .05, .86)
 
 def finish(obj, name, mat, bevel=.008):

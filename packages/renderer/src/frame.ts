@@ -31,7 +31,7 @@ export class WoodlandFrame {
     this.camera = new ArcRotateCamera('bezel camera', -Math.PI / 2, 0.001, 2000, Vector3.Zero(), this.scene);
     this.camera.mode = Camera.ORTHOGRAPHIC_CAMERA; this.camera.maxZ = 5000;
     this.light = new DirectionalLight('bezel daylight', new Vector3(-0.5, -1, 0.35), this.scene); this.light.intensity = 1.3;
-    const fill = new HemisphericLight('bezel bounce', Vector3.Up(), this.scene); fill.intensity = 0.5;
+    const fill = new HemisphericLight('bezel bounce', Vector3.Up(), this.scene); fill.intensity = 0.28;
     this.bark = this.material('carved bark relief', '/assets/branch-relief.png', true);
     this.wood = this.material('rough sawn timber', '/assets/rough-planks.png', false);
   }
@@ -47,6 +47,7 @@ export class WoodlandFrame {
     // not an inferred complete 3D reconstruction of the photograph.
     for (const [m, url] of [[this.bark, '/assets/branch-relief.png'], [this.wood, '/assets/rough-planks.png']] as const) {
       m.bumpTexture = await reliefNormal(url, this.scene, m.name);
+      m.bumpTexture.level = m === this.bark ? 1.3 : 1.1;
     }
   }
   resize() {
@@ -110,11 +111,18 @@ export class WoodlandFrame {
     }
   }
   render(roll: number, pitch: number) {
-    this.resize(); this.light.direction.set(-0.5 + roll * 0.65, -1, 0.35 + pitch * 0.65);
+    this.resize(); applyTiltLight(this.light, roll, pitch, 1.75);
     this.light.diffuse = new Color3(1, 0.96, 0.88);
     this.scene.render();
   }
   dispose() { this.scene.dispose(); }
+}
+
+export function applyTiltLight(light: DirectionalLight, roll: number, pitch: number, intensity: number) {
+  const azimuth = -.98 + roll * 1.55, elevation = Math.max(.38, Math.min(1.32, .95 - pitch * .57));
+  light.direction.set(Math.sin(azimuth) * Math.cos(elevation), -Math.sin(elevation), Math.cos(azimuth) * Math.cos(elevation));
+  light.position.copyFrom(light.direction).scaleInPlace(-32);
+  light.intensity = intensity * (1 + pitch * .18);
 }
 
 export async function reliefNormal(url: string, scene: Scene, label: string) {

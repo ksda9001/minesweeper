@@ -5,7 +5,7 @@ import { Scene } from '@babylonjs/core/scene';
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
 import { Camera } from '@babylonjs/core/Cameras/camera';
 import { Viewport } from '@babylonjs/core/Maths/math.viewport';
-import { WoodlandFrame, reliefNormal } from './frame';
+import { WoodlandFrame, reliefNormal, applyTiltLight } from './frame';
 import { MineExplosions, planDetonations } from './explosions';
 import { soilPatches, surroundingSoil, SoilBackdrop } from './soil';
 import { Vector3, Matrix, Quaternion } from '@babylonjs/core/Maths/math.vector';
@@ -135,14 +135,14 @@ export class BoardRenderer {
     this.scene.imageProcessingConfiguration.toneMappingEnabled = true;
     this.scene.imageProcessingConfiguration.toneMappingType = 1;
     this.scene.environmentTexture = new HDRCubeTexture('/assets/daylight.hdr', this.scene, 128, false, true, false, true);
-    this.scene.environmentIntensity = 0.65;
+    this.scene.environmentIntensity = 0.45;
     this.camera = new ArcRotateCamera('macro camera', -Math.PI / 2, 0.001, 20, Vector3.Zero(), this.scene);
     this.camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
     this.camera.minZ = 0.1; this.camera.maxZ = 200;
     this.camera.fov = 0.62;
     this.sun = new DirectionalLight('daylight', new Vector3(-0.6, -1, 0.4), this.scene);
     this.sun.position = new Vector3(12, 24, -12); this.sun.intensity = 1.55;
-    const sky = new HemisphericLight('sky bounce', Vector3.Up(), this.scene); sky.intensity = 0.45; sky.groundColor = new Color3(0.2, 0.14, 0.08);
+    const sky = new HemisphericLight('sky bounce', Vector3.Up(), this.scene); sky.intensity = 0.28; sky.groundColor = new Color3(0.2, 0.14, 0.08);
     this.earth = this.material('rich soil', '#ffffff', 0.96);
     this.earth.albedoTexture = new Texture('/assets/soil-relief.png', this.scene);
     this.earth.bumpTexture = new Texture('/assets/soil-normal.jpg', this.scene);
@@ -158,13 +158,26 @@ export class BoardRenderer {
     for (const texture of [this.turf.albedoTexture, this.turf.bumpTexture, this.turf.metallicTexture]) { (texture as Texture).uScale = (texture as Texture).vScale = 1; }
     this.flagRed = this.material('red canvas flag', '#ffffff', 0.86);
     this.flagRed.backFaceCulling = false; this.flagRed.twoSidedLighting = true;
-    const clothTexture = new DynamicTexture('woven red flag', { width: 128, height: 80 }, this.scene, true);
+    this.flagRed.sheen.isEnabled = true; this.flagRed.sheen.intensity = .15; this.flagRed.sheen.color = new Color3(.9, .3, .17);
+    const clothTexture = new DynamicTexture('woven red flag', { width: 512, height: 384 }, this.scene, true);
     const cloth = clothTexture.getContext() as CanvasRenderingContext2D;
-    const dye = cloth.createLinearGradient(0, 0, 128, 80); dye.addColorStop(0, '#f34825'); dye.addColorStop(.5, '#bb2312'); dye.addColorStop(1, '#e95630');
-    cloth.fillStyle = dye; cloth.fillRect(0, 0, 128, 80); cloth.strokeStyle = '#ffe4aa'; cloth.lineWidth = 5; cloth.strokeRect(3, 3, 122, 74);
-    cloth.fillStyle = '#ffd7ac25'; for (let x = 0; x < 128; x += 3) cloth.fillRect(x, 0, 1, 80);
+    const dye = cloth.createLinearGradient(0, 0, 512, 384); dye.addColorStop(0, '#ed3b22'); dye.addColorStop(.5, '#b71d12'); dye.addColorStop(1, '#e83a23');
+    cloth.fillStyle = dye; cloth.fillRect(0, 0, 512, 384);
+    const weave = new DynamicTexture('flag cotton weave normal', { width: 512, height: 384 }, this.scene, true);
+    const weaveCtx = weave.getContext() as CanvasRenderingContext2D, threads = weaveCtx.createImageData(512, 384);
+    for (let y = 0; y < 384; y++) for (let x = 0; x < 512; x++) {
+      const warp = Math.sin(x * Math.PI / 3), weft = Math.sin(y * Math.PI / 3), alternate = (Math.floor(x / 6) + Math.floor(y / 6)) % 2;
+      const dx = warp * (alternate ? .3 : .65), dy = weft * (alternate ? .65 : .3), length = Math.hypot(dx, dy, 1);
+      threads.data.set([128 + dx / length * 127, 128 + dy / length * 127, 128 + 127 / length, 255], (y * 512 + x) * 4);
+      if (x % 6 === 0 || y % 6 === 0) { cloth.fillStyle = alternate ? '#3609002b' : '#ffca8d26'; cloth.fillRect(x, y, 1, 1); }
+    }
+    cloth.strokeStyle = '#6d160e'; cloth.lineWidth = 5; cloth.strokeRect(5, 5, 502, 374);
+    cloth.setLineDash([3, 5]); cloth.strokeStyle = '#ffb795'; cloth.lineWidth = 1; cloth.strokeRect(8, 8, 496, 368);
     clothTexture.update(); this.flagRed.albedoTexture = clothTexture;
-    this.poleMaterial = this.material('brushed stake', '#d6d0b7', 0.45, 0.5);
+    weaveCtx.putImageData(threads, 0, 0); weave.update(); weave.gammaSpace = false; this.flagRed.bumpTexture = weave; weave.level = .65;
+    this.poleMaterial = this.material('weathered wood stake', '#bd915c', .88);
+    this.poleMaterial.albedoTexture = new Texture('/assets/wood-color.jpg', this.scene);
+    this.poleMaterial.bumpTexture = new Texture('/assets/bark-normal.jpg', this.scene); this.poleMaterial.bumpTexture.level = .35;
     this.mineMaterial = this.material('scorched soil', '#342a1e', 1);
     this.mineMaterial.bumpTexture = this.earth.bumpTexture;
     this.grassMaterial = this.makeGrassMaterial();
@@ -192,7 +205,8 @@ export class BoardRenderer {
       if (document.hidden) return;
       const now = performance.now(), dt = Math.min((now - this.lastFrame) / 1000, 0.05); this.lastFrame = now;
       this.smoothRoll += (this.roll - this.smoothRoll) * (1 - Math.exp(-8 * dt)); this.smoothPitch += (this.pitch - this.smoothPitch) * (1 - Math.exp(-8 * dt));
-      this.sun.direction.set(-0.6 + this.smoothRoll * 0.65, -1, 0.4 + this.smoothPitch * 0.65);
+      applyTiltLight(this.sun, this.smoothRoll, this.smoothPitch, 2.05);
+      (this.scene.environmentTexture as HDRCubeTexture).rotationY = this.smoothRoll * .65;
       this.wind.time = this.settings.reducedMotion ? 0 : now / 1000;
       const detonations: number[] = [];
       while (this.pendingDetonations.length && this.pendingDetonations[0].at <= now) detonations.push(this.pendingDetonations.shift()!.index);
@@ -235,12 +249,10 @@ export class BoardRenderer {
   async loadProps() {
     if (this.propsLoaded) return;
     const mine = await LoadAssetContainerAsync('/assets/mine.glb', this.scene); mine.addAllToScene();
-    const parts = mine.meshes.filter((m): m is Mesh => m instanceof Mesh && m.getTotalVertices() > 0);
-    for (const mesh of parts) {
-      mesh.bakeTransformIntoVertices(mesh.computeWorldMatrix(true)); mesh.parent = null; mesh.position.setAll(0); mesh.rotation.setAll(0); mesh.rotationQuaternion = null; mesh.scaling.setAll(1);
-    }
-    this.mineSource = Mesh.MergeMeshes(parts, true, true, undefined, false, true)!;
-    this.mineSource.name = 'weathered disc mine source'; this.mineSource.isVisible = false; this.mineSource.isPickable = false;
+    for (const material of mine.materials) if (material instanceof PBRMaterial && material.name === 'Weathered green painted steel') material.albedoColor.scaleInPlace(1.65);
+    // Preserve glTF's handedness and hierarchy so painted surfaces keep correct normals.
+    this.mineSource = mine.meshes.find(mesh => !mesh.parent) as Mesh;
+    this.mineSource.name = 'weathered disc mine source'; this.mineSource.setEnabled(false); this.mineSource.isPickable = false;
     const numbers = await LoadAssetContainerAsync('/assets/numbers.glb', this.scene); numbers.addAllToScene();
     for (const mesh of numbers.meshes) {
       const digit = Number(mesh.name.match(/RM_Number_(\d)/)?.[1]);
@@ -385,18 +397,24 @@ export class BoardRenderer {
   }
   private makeFlag(i: number): Mesh {
     const { x, z } = this.location(i);
-    const pole = MeshBuilder.CreateCylinder(`flag ${i}`, { height: 0.77, diameter: 0.035, tessellation: 10 }, this.scene); pole.position.set(x - 0.28, 0.48, z); pole.material = this.poleMaterial; pole.isPickable = false;
-    // Spread the cloth over both horizontal axes so it remains readable from above.
-    const cloth = new Mesh(`flag cloth ${i}`, this.scene), data = new VertexData();
-    data.positions = [0,.30,-.24, .28,.28,-.18, .60,.22,0, .27,.16,.16, 0,.12,.26, .22,.30,0];
-    data.uvs = [0,0, .5,0, 1,.5, .5,1, 0,1, .4,.5]; data.indices = [5,0,1, 5,1,2, 5,2,3, 5,3,4, 5,4,0];
-    const n: number[] = []; VertexData.ComputeNormals(data.positions, data.indices, n); data.normals = n; data.applyToMesh(cloth); cloth.material = this.flagRed; cloth.parent = pole; cloth.isPickable = false;
+    const pole = MeshBuilder.CreateCylinder(`flag ${i}`, { height: .95, diameterTop: .075, diameterBottom: .085, tessellation: 12 }, this.scene); pole.position.set(x - .29, .37, z + .03); pole.rotation.x = -.65; pole.material = this.poleMaterial; pole.isPickable = false;
+    // The attached edge is vertical; the free cloth billows out into the top view.
+    const paths: Vector3[][] = [];
+    for (let row = 0; row <= 12; row++) {
+      const v = row / 12, path: Vector3[] = [];
+      for (let col = 0; col <= 20; col++) {
+        const u = col / 20, fold = Math.sin(u * 8 - v * 2.5) * u;
+        path.push(new Vector3(u * .67, .37 - v * .48 * (1 - u * .35) - u * .055 + fold * .08, v * .46 * Math.sin(u * Math.PI / 2) + fold * .105));
+      }
+      paths.push(path);
+    }
+    const cloth = MeshBuilder.CreateRibbon(`flag cloth ${i}`, { pathArray: paths, sideOrientation: Mesh.DOUBLESIDE }, this.scene); cloth.material = this.flagRed; cloth.parent = pole; cloth.isPickable = false;
     this.boardMeshes.push(pole); this.shadow?.addShadowCaster(pole, true); return pole;
   }
   private makeMine(i: number): Mesh {
     const { x, z } = this.location(i);
     const mine = this.mineSource!.clone(`mine prop ${i}`)!;
-    mine.isVisible = true; mine.position.set(x, .018, z); mine.rotation.set(.08, i * 2.399, -.06); mine.isPickable = false;
+    mine.setEnabled(true); mine.isVisible = true; mine.position.set(x, .018, z); mine.rotationQuaternion = Quaternion.RotationYawPitchRoll(i * 2.399, .08, -.06).multiply(this.mineSource!.rotationQuaternion ?? Quaternion.Identity()); mine.isPickable = false;
     const scorch = MeshBuilder.CreateDisc(`blast mark ${i}`, { radius: .46, tessellation: 40 }, this.scene);
     scorch.rotation.x = Math.PI / 2; scorch.position.set(x, .003, z); scorch.material = this.mineMaterial; scorch.isPickable = false; this.boardMeshes.push(scorch);
     this.boardMeshes.push(mine); this.shadow?.addShadowCaster(mine, true); return mine;
@@ -426,7 +444,7 @@ export class BoardRenderer {
     this.center ??= { beta, gamma };
     const angle = (screen.orientation?.angle ?? window.orientation ?? 0) * Math.PI / 180;
     const b = ((beta - this.center.beta + 540) % 360) - 180, g = ((gamma - this.center.gamma + 540) % 360) - 180;
-    const dead = (v: number) => Math.abs(v) < 0.8 ? 0 : Math.max(-1, Math.min(1, v * this.settings.sensitivity / 20)) * this.settings.motionIntensity;
+    const dead = (v: number) => Math.abs(v) < 0.8 ? 0 : Math.max(-1, Math.min(1, v * this.settings.sensitivity / 18)) * this.settings.motionIntensity;
     this.pitch = dead(b * Math.cos(angle) - g * Math.sin(angle)); this.roll = dead(g * Math.cos(angle) + b * Math.sin(angle));
   }
   private pick(clientX: number, clientY: number) {

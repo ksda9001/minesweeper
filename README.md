@@ -49,6 +49,9 @@ Automatic quality measures actual initial frame rate. Manual quality changes bla
 WebGPU is preferred, WebGL is the fallback. Shader compiler WASM is bundled for offline use.
 Device tilt changes only directional lighting on the field and physical frame; the camera and board do not rotate. It is opt-in, with calibration, angle normalization, dead zone, bounded sensitivity, and exponential smoothing.
 Secure HTTPS/localhost and sensor support are required for browser tilt. Sensors/haptics and sound are optional.
+Tilt changes the daylight azimuth, elevation, and reflected environment, with a darker fill light so wood grain, cloth folds, and steel highlights respond visibly. It never rotates the board or camera.
+Sound defaults to 90% master volume and 85% effects. A native audio limiter controls overlapping blast peaks; existing saved volume choices are retained.
+Red flags use folded woven cloth on wood stakes, with their free edges opening toward the overhead view. Launcher artwork is shared by Android, Windows, and Web; regenerate its packaged sizes with `python assets-source/icons.py` (Pillow required).
 
 ## Offline / Cloudflare
 

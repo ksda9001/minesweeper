@@ -27,3 +27,5 @@ The game cells preserve soil-relief.png and its height-derived normal map. Squar
 WebGPU shader tools are bundled from Babylon.js CDN: `glslang.js/.wasm` and `twgsl.js/.wasm`.
 Babylon.js is Apache-2.0; glslang and Tint retain their upstream licenses in `THIRD_PARTY_LICENSES/`.
 Photographic textures currently use 1K JPEGs; convert to KTX2 when texture bandwidth or memory measurements warrant it.
+
+The skeuomorphic launcher artwork in assets-source/app-icon.png was generated with OpenAI ImageGen for this game. assets-source/icons.py packages it for Android adaptive and legacy launchers, Windows ICO, and Web PNG icons. The red cloth uses procedural warp/weft normal detail and folded ribbon geometry. The mine retains the CC0 green_metal_rust maps, with separate enamel clearcoat and reflective worn-steel edges.

@@ -12,3 +12,4 @@ apps/mobile/ios/App/Pods/
 .DS_Store
 *.blend1
 apps/desktop/src-tauri/gen/
+__pycache__/

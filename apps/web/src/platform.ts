@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import type { BoardRenderer, Quality } from '../../../packages/renderer/src/index';
 import type { Language, LanguageOption } from './i18n';
 export interface Settings { language: LanguageOption; quality: Quality; reducedMotion: boolean; contrast: boolean; motionIntensity: number; sensitivity: number; master: number; effects: number; ambient: number; shortcuts: boolean }
-export const defaults: Settings = { language: 'auto', quality: 'auto', reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, contrast: false, motionIntensity: 0.7, sensitivity: 1, master: 0.6, effects: 0.6, ambient: 0.15, shortcuts: true };
+export const defaults: Settings = { language: 'auto', quality: 'auto', reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, contrast: false, motionIntensity: 0.9, sensitivity: 1.2, master: 0.9, effects: 0.85, ambient: 0.18, shortcuts: true };
 export function loadSettings(): Settings {
   try {
     const value = JSON.parse(localStorage.getItem('real-mines-settings') ?? '{}');
@@ -51,7 +51,9 @@ export class Audio {
   unlock() {
     if (!this.ctx) {
       try {
-        this.ctx = new AudioContext(); this.master = this.ctx.createGain(); this.master.connect(this.ctx.destination);
+        this.ctx = new AudioContext(); this.master = this.ctx.createGain();
+        const limiter = this.ctx.createDynamicsCompressor(); limiter.threshold.value = -6; limiter.knee.value = 6; limiter.ratio.value = 12; limiter.attack.value = .003; limiter.release.value = .12;
+        this.master.connect(limiter); limiter.connect(this.ctx.destination);
         this.noise = this.ctx.createBuffer(1, this.ctx.sampleRate * 3, this.ctx.sampleRate); const data = this.noise.getChannelData(0); for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
         const source = this.ctx.createBufferSource(); source.buffer = this.noise; source.loop = true;
         const filter = this.ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 350;
@@ -66,10 +68,10 @@ export class Audio {
     const now = this.ctx.currentTime, duration = kind === 'lost' ? 0.45 : 0.12;
     const source = this.ctx.createBufferSource(); source.buffer = this.noise;
     const filter = this.ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = kind === 'lost' ? 180 : kind === 'flag' ? 1300 : 800;
-    const gain = this.ctx.createGain(); gain.gain.setValueAtTime(this.settings.effects * 0.22, now); gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    const gain = this.ctx.createGain(); gain.gain.setValueAtTime(this.settings.effects * (kind === 'lost' ? .6 : .42), now); gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
     source.connect(filter); filter.connect(gain); gain.connect(this.master); source.start(now, Math.random()); source.stop(now + duration);
     source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
-    if (kind === 'won') for (let i = 0; i < 3; i++) { const tone = this.ctx.createOscillator(), envelope = this.ctx.createGain(); tone.frequency.value = [523, 659, 784][i]; envelope.gain.setValueAtTime(0.06 * this.settings.effects, now + i * 0.1); envelope.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4); tone.connect(envelope); envelope.connect(this.master); tone.start(now + i * 0.1); tone.stop(now + i * 0.1 + 0.4); tone.onended = () => { tone.disconnect(); envelope.disconnect(); }; }
+    if (kind === 'won') for (let i = 0; i < 3; i++) { const tone = this.ctx.createOscillator(), envelope = this.ctx.createGain(); tone.frequency.value = [523, 659, 784][i]; envelope.gain.setValueAtTime(0.13 * this.settings.effects, now + i * 0.1); envelope.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4); tone.connect(envelope); envelope.connect(this.master); tone.start(now + i * 0.1); tone.stop(now + i * 0.1 + 0.4); tone.onended = () => { tone.disconnect(); envelope.disconnect(); }; }
   }
   suspend() { void this.ctx?.suspend(); }
   dispose() { void this.ctx?.close(); }

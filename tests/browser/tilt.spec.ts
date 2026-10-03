@@ -41,7 +41,19 @@ test('device tilt changes lighting while screen coordinates keep selecting the s
 
   await orientation(45, 18);
   await page.waitForTimeout(650);
-  expect((await page.screenshot({ clip })).equals(neutral)).toBe(false);
+  const tilted = await page.screenshot({ clip });
+  const difference = await page.evaluate(async (images) => {
+    const values: Uint8ClampedArray[] = [];
+    for (const image of images) {
+      const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${image}`)).blob());
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height), context = canvas.getContext('2d')!;
+      context.drawImage(bitmap, 0, 0); values.push(context.getImageData(0, 0, bitmap.width, bitmap.height).data); bitmap.close();
+    }
+    let sum = 0; for (let i = 0; i < values[0].length; i++) if (i % 4 !== 3) sum += Math.abs(values[0][i] - values[1][i]);
+    return sum / (values[0].length * .75);
+  }, [neutral.toString('base64'), tilted.toString('base64')]);
+  console.log(`Tilt lighting RGB mean difference: ${difference.toFixed(2)} / 255`);
+  expect(difference).toBeGreaterThan(6);
   for (const [i, [x, y]] of points.entries()) {
     await page.mouse.move(field.x + field.width * x, field.y + field.height * y);
     await expect(page.locator('#cell-description')).toHaveText(cells[i]);
