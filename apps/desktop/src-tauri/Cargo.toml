@@ -1,6 +1,6 @@
 [package]
 name = "realistic-minesweeper"
-version = "0.1.6"
+version = "0.1.7"
 description = "Classic Minesweeper on a three-dimensional grass field"
 authors = ["Casper"]
 edition = "2021"
