@@ -15,7 +15,7 @@ test('WebGPU initializes dynamic textures, relief frame, and playable board', as
   await expect(page.getByText('关闭页面后本局结束。')).toHaveCount(0);
   await page.getByRole('button', { name: '关闭', exact: true }).click();
   await page.locator('canvas').focus(); await page.keyboard.press('Enter');
-  await expect(page.getByText('点击草皮开始 · 首次点击周围安全')).toBeHidden();
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'playing');
   await page.screenshot({ path: '../minesweeper-webgpu.png' });
   expect(errors).toEqual([]);
 });

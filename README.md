@@ -16,7 +16,7 @@ No accounts, leaderboard, backend, remote score storage, or iOS project.
 - Keyboard: arrows select, Enter/Space reveals, F flags, C chords, R restarts, Home recenters. Disable in Settings.
 - The timer starts on the first reveal and freezes on win/loss. Time spent in the background counts.
 - Settings → Language: Follow system / 中文 / English. Chinese locales use Chinese, other locales use English.
-- Settings are local. A page reload starts a new game; there is no saved game or score history.
+- Settings are local. A page reload starts a new game. Scores records every cleared field with its mode, dimensions, mine count, exact elapsed time, and completion date. Records persist on this device, with newest entries first.
 
 ## Develop
 
@@ -94,7 +94,7 @@ Debug APKs use a debug key. Create and protect your own release keystore before 
 
 Automated checks cover game rules, desktop and emulated touch interaction, full viewport layout, locale detection, language override persistence, and offline reload.
 Native builds verify compilation/packaging. They do not establish real-device frame-rate targets, sensor calibration, GPU compatibility, or release signing.
-CC0 PBR textures and HDR daylight are bundled alongside reference-guided generated textures. Revealed soil preserves the reference-guided texture and height-derived normals; each square patch uses matching shallow grooves and crops only the artwork's outer edge. The continuous background blends rotated, offset samples of the same soil interior to avoid obvious mirrored patterns. Clover, daisy, branch, beveled numbers, and a weathered metal disc mine have editable Blender sources. The branch frame and timber panels use textured relief geometry with normal maps; their lighting responds to device tilt. Counter digits and the restart token remain raster assets. Grass blades and woven red flags are procedural geometry. See `ASSETS.md` for the source of each asset.
+CC0 PBR textures and HDR daylight are bundled alongside reference-guided generated textures. Revealed soil preserves the reference-guided texture and height-derived normals; each square patch uses matching shallow grooves and crops only the artwork's outer edge. The continuous background blends rotated, offset samples of the same soil interior to avoid obvious mirrored patterns. Clover, daisy, branch, beveled numbers, and a weathered metal disc mine have editable Blender sources. The branch frame and timber panels use textured relief geometry with normal maps; their lighting responds to device tilt. Counter frames stay fixed while centered text updates their values; the restart token remains a raster asset with an external pressed shadow. Grass blades and woven red flags are procedural geometry. See `ASSETS.md` for the source of each asset.
 The current visual implementation is a working baseline, not a claim of finished photorealistic production art.
 
 See `ASSETS.md` for asset provenance.

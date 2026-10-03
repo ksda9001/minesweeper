@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { validate, type Difficulty, type Config } from '../../../packages/game-core/src/index';
 import type { BoardRenderer, Quality } from '../../../packages/renderer/src/index';
 import type { Language, LanguageOption } from './i18n';
 export interface Settings { language: LanguageOption; quality: Quality; reducedMotion: boolean; contrast: boolean; motionIntensity: number; sensitivity: number; master: number; effects: number; ambient: number; shortcuts: boolean }
@@ -16,6 +17,18 @@ export function loadSettings(): Settings {
 }
 export function saveSettings(settings: Settings): boolean {
   try { localStorage.setItem('real-mines-settings', JSON.stringify(settings)); return true; } catch { return false; }
+}
+export type Score = Config & { mode: Difficulty; seconds: number; finishedAt: string };
+export function loadScores(): Score[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem('real-mines-scores') ?? '[]');
+    if (!Array.isArray(saved)) return [];
+    return saved.filter((s): s is Score => s !== null && typeof s === 'object' && ['beginner', 'intermediate', 'expert', 'custom'].includes(s.mode) && !validate(s) && typeof s.seconds === 'number' && Number.isFinite(s.seconds) && s.seconds >= 0 && typeof s.finishedAt === 'string' && Number.isFinite(Date.parse(s.finishedAt)));
+  } catch { return []; }
+}
+export function saveScores(scores: Score[]): boolean {
+  // ponytail: localStorage history; use IndexedDB if records exceed the browser quota.
+  try { localStorage.setItem('real-mines-scores', JSON.stringify(scores)); return true; } catch { return false; }
 }
 export async function enableMotion(renderer: BoardRenderer, language: Language): Promise<() => void> {
   if (!isSecureContext && !Capacitor.isNativePlatform()) throw new Error(language === 'zh' ? '设备姿态需要 HTTPS 或本机安全环境。' : 'Device tilt requires HTTPS or a secure local environment.');

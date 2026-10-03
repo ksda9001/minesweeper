@@ -12,24 +12,24 @@ test('renders the 3D board, flags/reveals, restarts, switches difficulty, and va
   const nav = (await page.locator('.menu-bar').boundingBox())!;
   expect(mode.y).toBeGreaterThanOrEqual(nav.y); expect(mode.y + mode.height).toBeLessThanOrEqual(nav.y + nav.height);
   expect(mode.height).toBeLessThanOrEqual(28);
-  await expect(page.locator('.bottom-panel button')).toHaveCount(0);
-  expect((await page.locator('.status-bar').boundingBox())!.y).toBeGreaterThanOrEqual(field.y + field.height);
+  await expect(page.locator('.bottom-panel, .status-bar')).toHaveCount(0);
   await expect(page.locator('header')).toHaveCount(0);
   await canvas.focus(); await page.keyboard.press('f');
   await expect(page.getByRole('status', { name: '剩余地雷 9', exact: true })).toBeVisible();
   await page.keyboard.press('f'); await page.keyboard.press('ArrowRight'); await page.keyboard.press('Enter');
-  await expect(page.getByText('点击草皮开始 · 首次点击周围安全')).toBeHidden();
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'playing');
   await page.waitForTimeout(500); // Capture the 220 ms reveal wave after its last tile settles.
   await page.screenshot({ path: '../minesweeper-desktop.png', fullPage: true });
   await page.getByRole('button', { name: '重新开始', exact: true }).click();
   await expect(page.getByRole('status', { name: '剩余地雷 10', exact: true })).toBeVisible();
   await page.getByLabel('难度', { exact: true }).selectOption('expert');
   await expect(page.getByRole('status', { name: '剩余地雷 99', exact: true })).toBeVisible();
-  await expect(page.getByText('30 × 16 · 99 雷', { exact: true })).toBeVisible();
+  await expect(canvas).toHaveAttribute('aria-label', /30 列, 16 行/);
   await page.getByLabel('难度', { exact: true }).selectOption('custom');
   await page.getByLabel('宽度', { exact: true }).fill('12'); await page.getByLabel('高度', { exact: true }).fill('8'); await page.getByLabel('地雷数量', { exact: true }).fill('15');
   await page.getByRole('button', { name: '开始游戏', exact: true }).click();
-  await expect(page.getByText('12 × 8 · 15 雷', { exact: true })).toBeVisible();
+  await expect(canvas).toHaveAttribute('aria-label', /12 列, 8 行/);
+  await expect(page.getByRole('status', { name: '剩余地雷 15', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByLabel('画质', { exact: true }).selectOption('low');
   await page.getByRole('button', { name: '关闭', exact: true }).click();
@@ -48,7 +48,7 @@ test('touch layout stays within the viewport and supports long press without acc
   const canvas = page.locator('canvas'), rect = (await canvas.boundingBox())!;
   await page.touchscreen.tap(rect.x + rect.width / 2, rect.y + rect.height / 2);
   await expect(page.getByRole('status', { name: '剩余地雷 9', exact: true })).toBeVisible();
-  await expect(page.getByText('点击草皮开始 · 首次点击周围安全')).toBeVisible();
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'ready');
   await page.getByRole('button', { name: '插旗模式', exact: true }).click();
   const session = await context.newCDPSession(page);
   await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: rect.x + rect.width / 2, y: rect.y + rect.height / 2, id: 1 }] });
@@ -56,7 +56,7 @@ test('touch layout stays within the viewport and supports long press without acc
   await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await expect(page.getByRole('status', { name: '剩余地雷 10', exact: true })).toBeVisible();
   await page.touchscreen.tap(rect.x + rect.width / 2, rect.y + rect.height / 2);
-  await expect(page.getByText('点击草皮开始 · 首次点击周围安全')).toBeHidden();
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'playing');
   await page.screenshot({ path: '../minesweeper-mobile.png', fullPage: true });
   const cabinet = (await page.locator('.cabinet').boundingBox())!;
   expect(cabinet.height).toBe(844); expect(cabinet.width).toBe(390);
@@ -123,7 +123,7 @@ test('production build reloads and plays offline with all render assets bundled'
   await expect(page.locator('.field')).toHaveAttribute('aria-busy', 'false', { timeout: 45000 });
   await expect(page.getByText('3D rendering unavailable')).toBeHidden();
   await page.locator('canvas').focus(); await page.keyboard.press('Enter');
-  await expect(page.getByText('Open a patch to begin · First opening is safe')).toBeHidden();
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'playing');
   expect(external).toEqual([]); expect(errors).toEqual([]);
   await context.close();
 });
