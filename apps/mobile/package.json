@@ -1,0 +1,1 @@
+{"name":"@real-mines/mobile","private":true,"type":"module","scripts":{"sync":"cap sync","android":"cap open android","add:android":"cap add android"},"dependencies":{"@capacitor/core":"^8.0.0","@capacitor/android":"^8.0.0","@capacitor/haptics":"^8.0.0","@capacitor/motion":"^8.0.0"}}

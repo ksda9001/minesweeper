@@ -1,0 +1,14 @@
+node_modules/
+dist/
+target/
+test-results/
+playwright-report/
+.wrangler/
+apps/mobile/android/.gradle/
+apps/mobile/android/local.properties
+apps/mobile/android/app/build/
+apps/mobile/android/build/
+apps/mobile/ios/App/Pods/
+.DS_Store
+*.blend1
+apps/desktop/src-tauri/gen/

@@ -1,0 +1,1 @@
+{"name":"@real-mines/desktop","private":true,"scripts":{"dev":"tauri dev","build":"tauri build"}}

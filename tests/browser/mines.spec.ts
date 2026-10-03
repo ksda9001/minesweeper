@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test';
+import { Game, PRESETS } from '../../packages/game-core/src/index';
+
+test('flags are visible, loss plays a chain, and restart cancels the remaining effects', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => { Math.random = () => 41 / 2 ** 32; localStorage.setItem('real-mines-settings', JSON.stringify({ quality: 'high', reducedMotion: false })); });
+  await page.goto('/');
+  await expect(page.locator('.field')).toHaveAttribute('aria-busy', 'false', { timeout: 45000 });
+  await expect(page.getByText('三维渲染暂不可用')).toBeHidden();
+  const game = new Game(PRESETS.beginner, 41); game.reveal(0, 0);
+  const mine = game.cells.findIndex(c => c.mine), canvas = page.locator('canvas');
+  await canvas.focus(); await page.keyboard.press('Enter');
+  for (let i = 0; i < mine; i++) await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('f');
+  await expect(page.getByRole('status', { name: '剩余地雷 9', exact: true })).toBeVisible();
+  await page.waitForTimeout(450);
+  await page.screenshot({ path: '../flag-visibility.png' });
+  await page.keyboard.press('f'); await page.keyboard.press('Enter');
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'lost');
+  const timer = await page.locator('.counter').last().getAttribute('aria-label');
+  await page.waitForTimeout(500); await page.screenshot({ path: '../chain-explosion.png' });
+  await page.waitForTimeout(2400); await page.screenshot({ path: '../realistic-mines.png' });
+  expect(await page.locator('.counter').last().getAttribute('aria-label')).toBe(timer);
+  await page.getByRole('button', { name: '重新开始', exact: true }).click();
+  await canvas.focus(); await page.keyboard.press('Enter');
+  for (let i = 0; i < mine; i++) await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: '重新开始', exact: true }).click();
+  await page.waitForTimeout(1800);
+  await expect(page.locator('.field')).toHaveAttribute('data-status', 'ready');
+  await expect(page.getByRole('status', { name: '剩余地雷 10', exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
