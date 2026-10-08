@@ -13,3 +13,5 @@ apps/mobile/ios/App/Pods/
 *.blend1
 apps/desktop/src-tauri/gen/
 __pycache__/
+apps/desktop/src-tauri/WebView2/
+store/artifacts/

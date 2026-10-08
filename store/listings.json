@@ -1,0 +1,37 @@
+{
+  "productName": "realistic minesweeper",
+  "publisher": "Norns Interactive",
+  "interfaceLanguages": ["zh-CN", "en-US"],
+  "locales": {
+    "zh-CN": {
+      "shortDescription": "在真实质感的草地与木框之间，重温经典扫雷。四种难度、本地成绩记录，随时离线开局。",
+      "description": "翻开草地，辨认数字，插上红旗。realistic minesweeper 将熟悉的扫雷规则放进富有自然质感的三维场景：粗糙的树枝木框、细密的草叶、泥土方格，以及带有磨损痕迹的金属地雷。\n\n从基础模式开始练习，挑战中级与专家模式，或自定义棋盘尺寸和地雷数量。首次翻开会保护所选方格及周围区域；标记完成后，还可以通过数字方格快速翻开周围的安全区域。\n\n每次成功通关都会保存在本地计分板中，记录所选模式、棋盘配置、用时与完成日期。用鼠标、触屏或键盘操作，按自己的习惯调整画质、音量、对比度与动画效果。\n\n游戏可离线游玩，不含广告或应用内购买。当前游戏界面支持简体中文和英文，默认跟随系统语言，也可以在设置中切换。",
+      "features": ["草地、泥土、树枝与金属的三维材质", "基础、中级、专家和自定义模式", "首次翻开安全保护与数字方格快速翻开", "本地计分板记录通关用时和模式", "鼠标、触屏及键盘操作", "可调画质、音效、对比度与减少动态效果", "离线游玩，无广告或应用内购买", "简体中文与英文界面，可手动切换"],
+      "keywords": ["扫雷", "逻辑", "益智", "离线游戏", "经典游戏", "三维", "休闲"],
+      "releaseNotesForFutureUpdate": "保留各数字木牌的原有质感，并校准显示位置；优化四叶草按下与回弹动画；加入本地通关计分板。首次上架时请将“此版本中的新增功能”留空。",
+      "tagline": "经典推理，自然质感。",
+      "screenshots": ["草地与树枝木框中的经典扫雷。", "专家模式：更大的棋盘，更有挑战的推理。", "自定义棋盘尺寸与地雷数量。", "本地计分板记录成功通关的模式、用时和日期。"],
+      "socialCopy": "经典扫雷，换一种自然质感。realistic minesweeper 带来草地、泥土与粗糙木框组成的三维棋盘，支持四种模式和本地通关记录。中文与英文界面，可离线游玩。"
+    },
+    "ja-JP": {
+      "shortDescription": "草や土、木の質感に包まれたクラシックなマインスイーパー。4つのモードとローカル記録に対応し、オフラインでも遊べます。",
+      "description": "草地を開き、数字を読み、赤い旗を立てる。realistic minesweeper は、おなじみのマインスイーパーを自然の質感が息づく3Dの盤面で楽しめるゲームです。粗い枝の木枠、細かな草葉、土のマス、使い込まれた金属の地雷が盤面を彩ります。\n\n初級でルールに慣れたら、中級や上級に挑戦。カスタムモードでは盤面の大きさと地雷の数を設定できます。最初に開くマスとその周囲は安全です。数字の示す数だけ旗を立てると、周囲のマスをまとめて開くこともできます。\n\nクリアするたびに、モード、盤面の設定、所要時間、クリア日時がローカルの記録表に保存されます。マウス、タッチ、キーボードで操作でき、画質、音量、コントラスト、アニメーションを好みに合わせて調整できます。\n\nオフラインでプレイできます。広告やアプリ内購入はありません。ゲーム内の表示言語は簡体字中国語と英語です。日本語のゲーム画面には対応していません。表示言語はシステム設定に従い、ゲームの設定から変更することもできます。",
+      "features": ["草、土、枝、金属の質感を表現した3Dの盤面", "初級・中級・上級・カスタムの4つのモード", "最初のクリックは安全。数字の周囲をまとめて開く操作にも対応", "クリア時間とモードを保存するローカル記録表", "マウス・タッチ・キーボード操作", "画質、音量、コントラスト、動きを抑える設定", "オフラインプレイ。広告・アプリ内購入なし", "ゲーム内表示は簡体字中国語と英語に対応"],
+      "keywords": ["マインスイーパー", "地雷探し", "ロジック", "パズル", "オフライン", "3D", "カジュアル"],
+      "releaseNotesForFutureUpdate": "木製の数字プレートの質感を保ちながら表示位置を調整し、クローバーの押し込みと戻りのアニメーションを改善しました。ローカルのクリア記録表を追加しました。初回申請では「このバージョンの新機能」を空欄にしてください。",
+      "tagline": "おなじみの推理を、自然の質感で。",
+      "screenshots": ["草地と枝の木枠に囲まれたクラシックなマインスイーパー。ゲーム画面は英語表示です。", "上級モードで、より広い盤面の推理に挑戦。", "カスタムモードで盤面の大きさと地雷数を設定。", "クリアしたモード、所要時間、日時をローカルに保存。"],
+      "socialCopy": "草、土、木の質感を楽しむマインスイーパー。realistic minesweeper は4つのモードとローカルのクリア記録に対応し、オフラインでも遊べます。ゲーム内表示は簡体字中国語と英語です。"
+    },
+    "en-US": {
+      "shortDescription": "Classic Minesweeper among textured grass, soil and timber. Play four modes offline and keep your completion times on a local scoreboard.",
+      "description": "Uncover the grass, read the numbers and place a red flag. realistic minesweeper brings familiar Minesweeper rules into a tactile 3D setting, with rough branch frames, detailed grass, soil squares and weathered metal mines.\n\nStart with Beginner, step up to Intermediate or Expert, or set the board size and mine count in Custom mode. Your first reveal and its surrounding cells are protected. Once the correct number of flags surrounds a revealed number, you can open its remaining neighbors together.\n\nEvery successful game adds its mode, board configuration, completion time and date to a local scoreboard. Play with a mouse, touch screen or keyboard, and adjust graphics quality, sound, contrast and reduced motion to suit your setup.\n\nPlay offline, with no ads or in-app purchases. The game interface supports Simplified Chinese and English. It follows your system language by default and can also be changed in Settings.",
+      "features": ["Textured 3D grass, soil, timber and metal", "Beginner, Intermediate, Expert and Custom modes", "Safe first reveal and number-cell chording", "Local scoreboard for completion times and modes", "Mouse, touch and keyboard controls", "Adjustable graphics, audio, contrast and reduced motion", "Offline play with no ads or in-app purchases", "Switchable Simplified Chinese and English interface"],
+      "keywords": ["minesweeper", "logic", "puzzle", "offline game", "classic game", "3D", "casual"],
+      "releaseNotesForFutureUpdate": "Preserved the original textured number cards while aligning their positions; refined the clover's press and rebound animation; added a local completion scoreboard. Leave What's new blank for the first Store submission.",
+      "tagline": "Classic logic. Natural texture.",
+      "screenshots": ["Classic Minesweeper framed by textured grass and timber.", "Take on the larger Expert board for a deeper challenge.", "Set your own board size and mine count in Custom mode.", "Keep completed modes, times and dates on a local scoreboard."],
+      "socialCopy": "Classic Minesweeper with a natural touch. realistic minesweeper pairs textured grass, soil and timber with four modes and local completion records. Play offline, with a Simplified Chinese or English interface."
+    }
+  }
+}

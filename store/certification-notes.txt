@@ -1,0 +1,25 @@
+Product: realistic minesweeper
+Publisher: Norns Interactive
+Store ID: 9P212988CNMK
+Package: NornsInteractive.realisticminesweeper, x64, 1.0.0.0
+
+This is a packaged Tauri/Win32 desktop Minesweeper game, not a UWP or Xbox application. It runs at medium integrity as the signed-in user. The runFullTrust capability is required for the desktop executable and its bundled Microsoft WebView2 rendering processes. It does not request elevation, install a service/driver, modify system settings, or use an external installer. There are no other restricted capabilities.
+
+All game resources and the Fixed Version WebView2 Runtime are included in the MSIX. No account, credentials, purchase, server connection, activation code or download is needed to play. There are no ads or in-app purchases. Settings and completed-game records are stored locally.
+
+Testing steps:
+1. Launch from Start or the Store. A playable grass board appears directly.
+2. Left-click/tap a cell to reveal; right-click or use Flag mode to place/remove a flag.
+3. Select Difficulty: Beginner (9x9/10), Intermediate (16x16/40), Expert (30x16/99), or Custom. Select the clover to start again.
+4. Once flags match a revealed number, click that number to reveal remaining neighbors.
+5. Complete a game to add its time, mode, configuration and completion date to Scores. Losing or restarting does not add a completion record.
+6. Open Settings to change language (Simplified Chinese/English), graphics, sound, contrast or reduced motion. Japanese is a localized Store listing only; the game UI does not support Japanese.
+7. Keyboard: arrows move; Enter/Space reveal; F flags; C chords; R restarts; Home recenters. Shortcuts can be disabled in Settings.
+8. On a supported orientation-sensor device, optionally enable tilt in Settings. This changes lighting only; the board does not rotate. Sensor availability is optional and is not required to play.
+
+Content information: metal landmines and brief explosions of the board are shown. No people or animals are depicted, injured or killed; there is no blood or gore. Please evaluate this content under the applicable game age-rating questionnaire.
+
+Privacy: https://github.com/ksda9001/minesweeper/blob/main/store/privacy.md
+Support: https://github.com/ksda9001/minesweeper/issues
+
+The Store upload MSIX is unsigned; Microsoft Store signs it after certification. Do not use the older unsigned NSIS installer as this submission's package.
